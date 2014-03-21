@@ -2,4 +2,9 @@
 (function() {
   window.histogram = new SR.Histogram('#histogram');
 
+  d3.json("data/histograms.json", function(error, json) {
+    histogram.data(json);
+    return histogram.render();
+  });
+
 }).call(this);

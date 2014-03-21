@@ -7,9 +7,76 @@
       this.initialize_svg(element);
     }
 
+    Histogram.prototype.width = 700;
+
+    Histogram.prototype.height = 420;
+
+    Histogram.prototype.padding = {
+      bottom: 40,
+      left: 30,
+      right: 10,
+      top: 10
+    };
+
     Histogram.prototype.initialize_svg = function(element) {
-      console.log('initialize_svg', element);
-      return this.svg = d3.select(element).append('svg');
+      return this.svg = d3.select(element).append('svg').attr('width', this.width).attr('height', this.height).attr('viewBox', "0 0 " + this.width + " " + this.height);
+    };
+
+    Histogram.prototype.data = function(data) {
+      if (data) {
+        this._data = data;
+        return this;
+      }
+      return this._data;
+    };
+
+    Histogram.prototype.render = function() {
+      this.render_x_axis();
+      return this.render_y_axis();
+    };
+
+    Histogram.prototype.render_x_axis = function() {
+      this.x_axis_group || (this.x_axis_group = this.svg.append('g').attr('class', 'x axis').attr('transform', "translate(" + this.padding.left + ", " + (this.height - this.padding.bottom) + ")"));
+      return this.x_axis_group.call(this.x_axis()).selectAll('text').attr('x', -3).attr('y', 0).attr('dy', ".35em").attr("transform", "rotate(-90)").style('text-anchor', "end");
+    };
+
+    Histogram.prototype.x = function() {
+      if (!this._x) {
+        this.initialize_x_scale();
+      }
+      return this._x;
+    };
+
+    Histogram.prototype.initialize_x_scale = function() {
+      return this._x = d3.scale.linear().domain([1590, 2010]).range([0, this.width - this.padding.left - this.padding.right]);
+    };
+
+    Histogram.prototype.x_axis = function() {
+      var axis;
+      return axis = d3.svg.axis().orient('bottom').scale(this.x()).ticks(40).tickFormat(function(d) {
+        return "" + d;
+      });
+    };
+
+    Histogram.prototype.render_y_axis = function() {
+      this.y_axis_group || (this.y_axis_group = this.svg.append('g').attr('class', 'y axis').attr('transform', "translate(" + this.padding.left + ", " + this.padding.top + ")"));
+      return this.y_axis_group.call(this.y_axis());
+    };
+
+    Histogram.prototype.y = function() {
+      if (!this._y) {
+        this.initialize_y_scale();
+      }
+      return this._y;
+    };
+
+    Histogram.prototype.y_axis = function() {
+      var axis;
+      return axis = d3.svg.axis().orient('left').scale(this.y()).ticks(10);
+    };
+
+    Histogram.prototype.initialize_y_scale = function() {
+      return this._y = d3.scale.linear().domain([0, 100]).range([this.height - this.padding.top - this.padding.bottom, 0]);
     };
 
     return Histogram;
