@@ -4,6 +4,7 @@
 
   SR.Histogram = (function() {
     function Histogram(element) {
+      this.element = element;
       this.initialize_svg(element);
     }
 
@@ -25,15 +26,129 @@
     Histogram.prototype.data = function(data) {
       if (data) {
         this._data = data;
+        this.append_buttons();
         return this;
       }
       return this._data;
     };
 
+    Histogram.prototype.append_buttons = function() {
+      var button_group, buttons, d;
+      d3.select("" + this.element + "-controls").selectAll('.buttons').remove();
+      button_group = d3.select("" + this.element + "-controls").append('ul').attr('class', 'buttons btn-group');
+      buttons = button_group.selectAll('a.btn').data(["All Orchestras"].concat((function() {
+        var _i, _len, _ref, _results;
+        _ref = this._data;
+        _results = [];
+        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+          d = _ref[_i];
+          _results.push(d.name);
+        }
+        return _results;
+      }).call(this)));
+      return buttons.enter().append('a').attr('class', 'btn btn-mini').text(function(d) {
+        return d;
+      });
+    };
+
+    Histogram.prototype.selected_data = function() {
+      var x;
+      this.data_key || (this.data_key = "All Orchestras");
+      if (this.data_key === "All Orchestras") {
+        this._selected_data = [
+          {
+            name: this.data_key,
+            years: this.compiled_counts()
+          }
+        ];
+      } else {
+        this._selected_data = (function() {
+          var _i, _len, _ref, _results;
+          _ref = this._data;
+          _results = [];
+          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+            x = _ref[_i];
+            if (x.name === this.data_key) {
+              _results.push(x);
+            }
+          }
+          return _results;
+        }).call(this);
+      }
+      return this._selected_data;
+    };
+
+    Histogram.prototype.compiled_counts = function() {
+      var compiled_counts, orch, _fn, _i, _len, _ref,
+        _this = this;
+      compiled_counts = {};
+      _ref = this._data;
+      _fn = function(orch) {
+        var all_years, d, _j, _len1, _results;
+        all_years = _this.years_as_array(orch);
+        _results = [];
+        for (_j = 0, _len1 = all_years.length; _j < _len1; _j++) {
+          d = all_years[_j];
+          _results.push((function(d) {
+            var _name;
+            compiled_counts[_name = d.year] || (compiled_counts[_name] = 0);
+            return compiled_counts[d.year] += d.count;
+          })(d));
+        }
+        return _results;
+      };
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        orch = _ref[_i];
+        _fn(orch);
+      }
+      return compiled_counts;
+    };
+
     Histogram.prototype.render = function() {
       this.render_x_axis();
-      return this.render_y_axis();
+      this.render_y_axis();
+      return this.render_data();
     };
+
+    Histogram.prototype.render_data = function() {
+      var orchestras, rectangles,
+        _this = this;
+      orchestras = this.svg.selectAll('g.orchestra').data(this.selected_data());
+      orchestras.enter().append('g').attr('class', 'orchestra');
+      orchestras.attr('name', function(d) {
+        return d.name;
+      }).attr('transform', "translate(" + this.padding.left + ", 0)");
+      rectangles = orchestras.selectAll('rect').data(this.years_as_array);
+      rectangles.enter().append('rect');
+      rectangles.attr('x', function(d) {
+        return _this._x(d.year) - 5;
+      }).attr('y', function(d) {
+        return _this.padding.top + _this._y(d.count);
+      }).attr('height', function(d) {
+        return _this._y(0) - _this._y(d.count);
+      }).attr('width', 10).style('fill', function(d) {
+        return _this.colors(d.name);
+      });
+      rectangles.exit().remove();
+      return orchestras.exit().remove();
+    };
+
+    Histogram.prototype.years_as_array = function(d) {
+      var count, year, _ref, _results;
+      _ref = d.years;
+      _results = [];
+      for (year in _ref) {
+        count = _ref[year];
+        _results.push({
+          year: parseInt(year),
+          count: count,
+          name: d.name
+        });
+      }
+      return _results;
+    };
+
+    Histogram.prototype.colors = d3.scale.category10();
 
     Histogram.prototype.render_x_axis = function() {
       this.x_axis_group || (this.x_axis_group = this.svg.append('g').attr('class', 'x axis').attr('transform', "translate(" + this.padding.left + ", " + (this.height - this.padding.bottom) + ")"));
@@ -76,7 +191,7 @@
     };
 
     Histogram.prototype.initialize_y_scale = function() {
-      return this._y = d3.scale.linear().domain([0, 100]).range([this.height - this.padding.top - this.padding.bottom, 0]);
+      return this._y = d3.scale.linear().domain([0, 60]).range([this.height - this.padding.top - this.padding.bottom, 0]);
     };
 
     return Histogram;
