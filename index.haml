@@ -1,0 +1,28 @@
+!!!
+%head
+  %meta{ charset: "UTF-8" }
+  %meta{ :"http-equiv" => "X-UA-Compatible", :content => "IE=edge" }
+  %meta{ name: "viewport", content: "width=device-width, initial-scale=1" }
+  %title 2013-14 Symphony Repertoire
+  %link{ rel: "stylesheet", href: "vendor/bootstrap/css/bootstrap.css" }
+  %script{ type: "text/javascript", src: "vendor/d3.v3.min.js" }
+  %script{ type: "text/javascript", src: "js/histogram.js" }
+
+%body
+
+  .jumbotron
+    .container
+      %h2 2013-14 Repertoire
+      %p A glance at seven major US orchestras' seasons
+  .container
+    .row
+      .col-md-9
+        %p
+          Hello, this is a paragraph
+          Lorem incidunt veritatis quasi fugit at quis, architecto praesentium ipsa cupiditate delectus molestiae unde omnis ducimus quo, odit, doloribus. Ipsum corrupti saepe perferendis maxime esse placeat esse, maxime. Placeat rem.
+
+    .row
+      .col-md-9
+        #histogram
+
+  %script{ type: "text/javascript", src: "js/main.js" }
