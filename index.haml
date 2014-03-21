@@ -14,24 +14,85 @@
 
   .jumbotron
     .container
-      %h1 2013-14 Repertoire
+      %h2 2013-14 Symphonic Repertoire
       %p A glance at seven major US orchestras' seasons
   .container
     .row
       .col-md-9
         %p
-          Hello, this is a paragraph
-          Lorem incidunt veritatis quasi fugit at quis, architecto praesentium ipsa cupiditate delectus molestiae unde omnis ducimus quo, odit, doloribus. Ipsum corrupti saepe perferendis maxime esse placeat esse, maxime. Placeat rem.
+          I grew up in an area whose local symphony produces around 9 programs per year in their core classical series, and most recently lived a region with no symphony of its own. Until I moved to San Francisco, a few years ago, my classical music consumption was mostly limited to solo piano performances.
 
+        %p
+          Since that time, I feel I've been somewhat spoiled by the diversity of programs put forth by the outstanding San Francisco Symphony. Having recently attended performances from two touring orchestras (The St. Petersburg Philharmonic and the Los Angeles Philharmonic), I started wondering just how diverse that programming really is. What is a typical repertoire for a major symphony?
+
+        %p
+          The answer to that question is surprisingly tricky to pin down, but what follows is a quick and dirty analysis of the 2013-14 seasons from seven major American orchestras.
+
+        .page-header
+          %h3
+            The Data
+
+        %p
+          In gathering data for this project, it became clear to me that the orchestra field lags behind many others in providing machine-readable metadata about its programming. To compile the lists of pieces, in most cases I downloaded the pre-season announcements and used a variety of text-matching techniques to extract the composers and titles from the program listings. After compiling the master list and standardizing names and titles, I used a semi-automated script to search Google for the years in which the compositions were either completed or first published. I attempted to list only the pieces that were part of the core classical series or each orchestra, omitting solo performances, chamber music, visiting orchestras, film series, etc. All of this is to say that this dataset is the result of a trade-off between data integrity and the minimal time I had to invest in this analysis. While it's not perfect, I think it will serve for a 10,000 foot overview.
     .row
       .col-md-12
         .page-header
-          %h1 
+          %h3 
             Histograms
-            %small Repertoire by Decade Composed
+            %small Size of Repertoire by Decade Composed
+    .row
+
       .col-md-9
         #histogram
       .col-md-3
         #histogram-controls
+    .row
+      .col-md-9
+        %p
+          %small.muted
+            Each piece is counted once for each orchestra that played it (repeat performances by the same orchestra are not counted).
+    .row
+      .col-md-9
+        %p
+          These histograms show a rather remarkable degree of confluence between the 7 orchestras. Taken together, there are 5 clear trends:
+
+        %ul
+          %li
+            %b The Baroque Bump (1710s to 1740s)
+          %li
+            %b The Mozart-Beethoven Foothill (1780s to 1820s):
+            Schubert probably plays a role here as well.
+          %li
+            %b The Mendelssohn-Schumann Spire (1840s)
+          %li
+            %b The Late Romantic to Post War Mountain (1870s to 1940s):
+            This is the majority of most orchestras' repertoires.
+          %li
+            %b The Contemporary Comeback (2000s to 2010s):
+            Driven largely by the LA Philharmonic, new works are much more popular than anything from the preceding few decades.
+         
+        %p Of all of the orchestras I looked at, New York Philharmonic has the most evenly distributed repertoire across different decades, and LA Philharmonic played the most new music (average year: 1886). Boston played the oldest (average year: 1873). What is surprising to me is how much this reflects my own musical tastes &mdash; I had thought I was fairly biased in the performances I chose to attend, but as it turns out, most of my choices come from the most popular 1870-1940 period.
+
+    .row
+      .col-md-9
+        .page-header
+          %h3 The Composers
+
+        %p
+          First, some troubling news: out of 530 distinct pieces performed, 6 were written by women (<i>barely</i> more than 1 percent).
+          Five of those pieces are brand new (they had or will have premieres this season). If I may editorialize for a minute: this is <i>abysmal</i>.          Granted, it certainly looks like the field is making an effort to introduce new voices this season (five of those pieces are world premieres), but happens to those pieces next year?
+          Various sources indicate the percentage of active composers who are female varies by country from around 10% to 25%.
+          I know I'm not the first person to point this out.
+
+          http://about.abc.net.au/2013/06/can-you-name-a-female-composer/
+
+          http://theconversation.com/off-key-women-composers-get-a-raw-deal-on-play-rates-17149
+
+          http://www.theguardian.com/commentisfree/2012/feb/08/why-so-few-female-composers
+
+
+
+
+
 
   %script{ type: "text/javascript", src: "js/main.js" }

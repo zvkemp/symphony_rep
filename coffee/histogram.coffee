@@ -30,11 +30,17 @@ class SR.Histogram
 
   append_buttons: ->
     d3.select("#{@element}-controls").selectAll('.buttons').remove()
-    button_group = d3.select("#{@element}-controls").append('ul').attr('class', 'buttons btn-group')
+    button_group = d3.select("#{@element}-controls").append('ul').attr('class', 'buttons')
     buttons = button_group.selectAll('a.btn').data(["All Orchestras"].concat(d.name for d in @_data))
     buttons.enter().append('a')
       .attr('class', 'btn btn-mini')
       .text((d) -> d)
+      .style('color',(d) => @colors(d))
+
+    buttons.on('click', (d) =>
+      @data_key = d
+      @render()
+    )
 
 
   selected_data: () ->
@@ -43,7 +49,7 @@ class SR.Histogram
       @_selected_data = [{ name: @data_key, years: @compiled_counts()}]
     else
       @_selected_data = (x for x in @_data when x.name == @data_key)
-    return @_selected_data
+    return @_selected_data[0]
 
   compiled_counts: () ->
     compiled_counts = {}
@@ -64,25 +70,22 @@ class SR.Histogram
     @render_data()
 
   render_data: ->
-    orchestras = @svg.selectAll('g.orchestra').data(@selected_data())
-    orchestras.enter()
-      .append('g')
-      .attr('class', 'orchestra')
-    orchestras.attr('name', (d) -> d.name)
+    @orchestra_group or= @svg.append('g').attr('class', 'orchestra')
       .attr('transform', "translate(#{@padding.left}, 0)")
 
-    rectangles = orchestras.selectAll('rect').data(@years_as_array)
+    console.log(@selected_data())
+    rectangles = @orchestra_group.selectAll('rect').data(@years_as_array(@selected_data()))
     rectangles.enter().append('rect')
-    rectangles.attr('x', (d) => @_x(d.year) - 5)
+      .attr('x', (d) => @_x(d.year) - 5)
+      .attr('y', @_y(0))
+      .attr('height', 0)
+    rectangles.transition()
       .attr('y', (d) => @padding.top + @_y(d.count))
       .attr('height', (d) => 
         @_y(0) - @_y(d.count)
       ).attr('width', 10)
       .style('fill', (d) => @colors(d.name))
     rectangles.exit().remove()
-
-
-    orchestras.exit().remove()
 
   years_as_array: (d) -> { year: parseInt(year), count: count, name: d.name } for year, count of d.years
 
@@ -125,7 +128,7 @@ class SR.Histogram
     @y_axis_group.call(@y_axis())
 
   y: ->
-    @initialize_y_scale() unless @_y
+    @initialize_y_scale()
     return @_y
 
   y_axis: ->
@@ -136,8 +139,14 @@ class SR.Histogram
 
   initialize_y_scale: ->
     @_y = d3.scale.linear()
-      .domain([0, 60])
+      .domain([0, @current_max()])
       .range([@height - @padding.top - @padding.bottom, 0])
+
+  current_max: ->
+    console.log(@selected_data())
+    years = @selected_data().years
+    d3.max(count for year, count of years)
+
 
 
 

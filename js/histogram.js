@@ -33,9 +33,10 @@
     };
 
     Histogram.prototype.append_buttons = function() {
-      var button_group, buttons, d;
+      var button_group, buttons, d,
+        _this = this;
       d3.select("" + this.element + "-controls").selectAll('.buttons').remove();
-      button_group = d3.select("" + this.element + "-controls").append('ul').attr('class', 'buttons btn-group');
+      button_group = d3.select("" + this.element + "-controls").append('ul').attr('class', 'buttons');
       buttons = button_group.selectAll('a.btn').data(["All Orchestras"].concat((function() {
         var _i, _len, _ref, _results;
         _ref = this._data;
@@ -46,8 +47,14 @@
         }
         return _results;
       }).call(this)));
-      return buttons.enter().append('a').attr('class', 'btn btn-mini').text(function(d) {
+      buttons.enter().append('a').attr('class', 'btn btn-mini').text(function(d) {
         return d;
+      }).style('color', function(d) {
+        return _this.colors(d);
+      });
+      return buttons.on('click', function(d) {
+        _this.data_key = d;
+        return _this.render();
       });
     };
 
@@ -75,7 +82,7 @@
           return _results;
         }).call(this);
       }
-      return this._selected_data;
+      return this._selected_data[0];
     };
 
     Histogram.prototype.compiled_counts = function() {
@@ -111,26 +118,22 @@
     };
 
     Histogram.prototype.render_data = function() {
-      var orchestras, rectangles,
+      var rectangles,
         _this = this;
-      orchestras = this.svg.selectAll('g.orchestra').data(this.selected_data());
-      orchestras.enter().append('g').attr('class', 'orchestra');
-      orchestras.attr('name', function(d) {
-        return d.name;
-      }).attr('transform', "translate(" + this.padding.left + ", 0)");
-      rectangles = orchestras.selectAll('rect').data(this.years_as_array);
-      rectangles.enter().append('rect');
-      rectangles.attr('x', function(d) {
+      this.orchestra_group || (this.orchestra_group = this.svg.append('g').attr('class', 'orchestra').attr('transform', "translate(" + this.padding.left + ", 0)"));
+      console.log(this.selected_data());
+      rectangles = this.orchestra_group.selectAll('rect').data(this.years_as_array(this.selected_data()));
+      rectangles.enter().append('rect').attr('x', function(d) {
         return _this._x(d.year) - 5;
-      }).attr('y', function(d) {
+      }).attr('y', this._y(0)).attr('height', 0);
+      rectangles.transition().attr('y', function(d) {
         return _this.padding.top + _this._y(d.count);
       }).attr('height', function(d) {
         return _this._y(0) - _this._y(d.count);
       }).attr('width', 10).style('fill', function(d) {
         return _this.colors(d.name);
       });
-      rectangles.exit().remove();
-      return orchestras.exit().remove();
+      return rectangles.exit().remove();
     };
 
     Histogram.prototype.years_as_array = function(d) {
@@ -179,9 +182,7 @@
     };
 
     Histogram.prototype.y = function() {
-      if (!this._y) {
-        this.initialize_y_scale();
-      }
+      this.initialize_y_scale();
       return this._y;
     };
 
@@ -191,7 +192,22 @@
     };
 
     Histogram.prototype.initialize_y_scale = function() {
-      return this._y = d3.scale.linear().domain([0, 60]).range([this.height - this.padding.top - this.padding.bottom, 0]);
+      return this._y = d3.scale.linear().domain([0, this.current_max()]).range([this.height - this.padding.top - this.padding.bottom, 0]);
+    };
+
+    Histogram.prototype.current_max = function() {
+      var count, year, years;
+      console.log(this.selected_data());
+      years = this.selected_data().years;
+      return d3.max((function() {
+        var _results;
+        _results = [];
+        for (year in years) {
+          count = years[year];
+          _results.push(count);
+        }
+        return _results;
+      })());
     };
 
     return Histogram;
